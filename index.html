@@ -1,100 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ToDo-list</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <h1>ToDo-list</h1>
 
-      <div class="input-area">
-        <input type="text" id="input" placeholder="Enter a new task" />
-        <button class="add-btn" onclick="add()">Add</button>
-        <button class="dl-btn" onclick="removeAll()">Clear</button>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToDo-list</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- remix icon cdn -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css"
+    integrity="sha512-kJlvECunwXftkPwyvHbclArO8wszgBGisiLeuDFwNM8ws+wKIw0sv1os3ClWZOcrEB2eRXULYUsm8OVRGJKwGA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
 
-      <ul class="todo-list" id="ul"></ul>
-      <p id="empty"></p>
+<body>
+  <div class="container">
+    <h1>Todo App</h1>
+
+    <div class="input-area">
+      <input type="text" id="input" placeholder="Enter a new task" />
+      <button class="add-btn" onclick="add()"><i class="ri-add-line"></i></button>
+      <button class="dl-btn" onclick="removeAll()"><i class="ri-chat-delete-line"></i></button>
     </div>
 
-    <script>
-      let array = []
-      let ul = document.getElementById("ul") 
-      let empty = document.getElementById("empty")
+    <ul class="todo-list" id="ul"></ul>
+    <p id="empty"></p>
+  </div>
 
-      function add() {
-        let input = document.getElementById("input").value
-        let remove = document.getElementById("input").value = ''
+  <script>
+    let array = []
+    let ul = document.getElementById("ul")
+    let empty = document.getElementById("empty")
 
-        if (input != "") {
-          empty.innerText = ''
-          array.push(input)
-          
-          localStorage.setItem("list", JSON.stringify(array))
-          show()
-        }
-        else {
-          empty.innerText = `*Please Enter your task` 
-        }
-      }
+    function add() {
+      let input = document.getElementById("input").value.trim()
+      let remove = document.getElementById("input").value = ''
 
-      function show() {
-        ul.innerHTML = ''
-
-        array.forEach((e, i) => {
-          let li = document.createElement("li")
-          li.innerHTML = `<span class="task-text">${e}</span>
-          <div class="actions">
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
-          </div>`
-          ul.appendChild(li)
-
-          li.querySelector(".delete-btn").addEventListener("click", function () {
-            li.remove()
-            array.splice(i, 1)
-            localStorage.setItem("list", JSON.stringify(array))
-            show()
-          })
-          li.querySelector(".edit-btn").addEventListener("click", function () {
-            let input = document.getElementById("input").value
-            li.innerHTML = `
-            <div class="box"> 
-              <input type="text" class="edit-task" id="editTask" placeholder="${e}">
-              <button class="edit-btn" id="output">Save</button>
-            </div>`;
-
-            li.querySelector("#output").addEventListener("click", function () {
-              let editTask = document.getElementById("editTask").value 
-              array[i] = editTask 
-              li.innerHTML = `
-              <span class="task-text">${e}</span>
-              <div class="actions"> 
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
-              </div>`
-              localStorage.setItem("list", JSON.stringify(array))
-              show()
-            });
-          });
+      if (input != "") {
+        empty.innerText = ''
+        array.push({
+          text: input,
+          completed: false
         })
-      }
 
-      let get = JSON.parse(localStorage.getItem("list"))
-      if (get) {
-        array = get
+        localStorage.setItem("list", JSON.stringify(array))
         show()
       }
-
-      function removeAll() { 
-        localStorage.clear()
-        ul.innerHTML = ''
-        array = []
-        empty.innerText = ''
+      else {
+        empty.innerText = `*Please Enter your task`
       }
-    </script>
-  </body>
+    }
+
+    function show() {
+      ul.innerHTML = ''
+
+      array.forEach((item, i) => {
+        let li = document.createElement("li")
+        li.innerHTML = `
+          <label class="task">
+            <input type="checkbox" class="check" ${item.completed ? "checked" : ""}>
+            <span class="task-text ${item.completed ? "done" : ""}">
+              ${item.text}
+            </span>
+          </label>
+          <div class="actions">
+            <button class="edit-btn"><i class="ri-edit-box-line"></i></button>
+            <button class="delete-btn"><i class="ri-delete-bin-6-line"></i></button>
+          </div>
+          `
+        ul.appendChild(li)
+
+        li.querySelector(".check").addEventListener("change", function (e) {
+          array[i].completed = e.target.checked
+          localStorage.setItem("list", JSON.stringify(array))
+          show()
+        })
+        li.querySelector(".delete-btn").addEventListener("click", function () {
+          li.remove()
+          array.splice(i, 1)
+          localStorage.setItem("list", JSON.stringify(array))
+          show()
+        })
+        li.querySelector(".edit-btn").addEventListener("click", function () {
+          let input = document.getElementById("input").value
+          li.innerHTML = `
+            <div class="box"> 
+              <input type="text" class="edit-task" id="editTask" placeholder="${item.text}">
+              <button class="edit-btn" id="output"><i class="ri-save-line"></i></button>
+              <button class="delete-btn"><i class="ri-delete-bin-6-line"></i></button>
+            </div>`;
+
+          li.querySelector("#output").addEventListener("click", function () {
+            let editTask = document.getElementById("editTask").value.trim()
+            if (editTask === '') return
+
+            array[i].text = editTask
+            localStorage.setItem("list", JSON.stringify(array))
+            show()
+          });
+        });
+      })
+    }
+
+    let get = JSON.parse(localStorage.getItem("list")) || []
+    if (get) {
+      array = get
+      show()
+    }
+
+    function removeAll() {
+      localStorage.removeItem("list")
+      array = []
+      ul.innerHTML = ''
+      empty.innerText = ''
+    }
+  </script>
+</body>
+
 </html>

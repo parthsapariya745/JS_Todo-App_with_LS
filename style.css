@@ -51,6 +51,9 @@ button {
   color: #fff;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
+.input-area button i, .actions button i {
+  font-size: 20px;
+}
 .input-area .add-btn {
   background: #12bc3a;
 }
@@ -86,6 +89,18 @@ button {
   justify-content: space-between;
   align-items: center;
   animation: fadeIn 0.3s ease-in;
+}
+.task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.task input {
+  accent-color: #12bc3a;
+}
+.task-text.done {
+  text-decoration: line-through;
+  opacity: 0.6;
 }
 .task-text {
   font-size: 16px;
